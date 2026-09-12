@@ -58,8 +58,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type-check
-        run: npx tsc --noEmit
+      # `next build` já roda o type-check internamente (gera .next/types antes
+      # de checar) — um `tsc --noEmit` isolado aqui falharia: LayoutProps e
+      # outros tipos só existem depois que o Next gera esses arquivos.
+      - name: Build de produção (inclui type-check)
+        run: npm run build
 
       - name: Cria a role app_user (services do GitHub Actions não suportam volume de init SQL)
         run: psql "$DATABASE_URL_ADMIN" -f db/sql/01-role-app-user.sql
@@ -72,6 +75,3 @@ jobs:
 
       - name: Evals do classificador (gate de qualidade mínima antes do deploy)
         run: npm run evals
-
-      - name: Build de produção
-        run: npm run build

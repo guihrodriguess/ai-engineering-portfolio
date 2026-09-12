@@ -29,7 +29,7 @@ app/**/page.tsx                   → UI (server components lendo direto do banc
 tests/                            → integração contra Postgres real, incluindo o teste de isolamento
 ```
 
-CI em `.github/workflows/ci-05-app-producao.yml` na raiz do monorepo (não dentro desta pasta — GitHub Actions só reconhece workflows na raiz do repositório): lint, typecheck, testes (com Postgres de serviço), evals, build.
+CI em `.github/workflows/ci-05-app-producao.yml` na raiz do monorepo (não dentro desta pasta — GitHub Actions só reconhece workflows na raiz do repositório): lint, build (que já inclui type-check), sobe um Postgres de serviço, testes, evals.
 
 ### Isolamento multi-tenant via Row-Level Security real
 
@@ -89,7 +89,7 @@ docker compose up --build
 
 ## CI (`.github/workflows/ci-05-app-producao.yml` na raiz do monorepo)
 
-Lint → type-check → sobe um Postgres de serviço → cria a role `app_user` → aplica migrations → **roda os testes de integração (incluindo RLS) contra esse Postgres** → roda os evals do classificador (gate de qualidade mínima, sem custo de IA — usa o fallback heurístico) → build de produção. Falha em qualquer etapa bloqueia o merge.
+Lint → build de produção (o `next build` já faz o type-check — um `tsc --noEmit` isolado falha aqui, porque tipos como `LayoutProps` só existem depois que o Next gera `.next/types`) → sobe um Postgres de serviço → cria a role `app_user` → aplica migrations → **roda os testes de integração (incluindo RLS) contra esse Postgres** → roda os evals do classificador (gate de qualidade mínima, sem custo de IA — usa o fallback heurístico). Falha em qualquer etapa bloqueia o merge.
 
 ## Bugs reais encontrados rodando os testes (não simulados)
 
@@ -97,6 +97,7 @@ Documentado por transparência — é exatamente o que os testes deveriam pegar:
 
 1. **RLS "fail-closed" quebrado**: `current_setting('app.org_id', true)` devolvia `''` (não `NULL`) pra sessão sem org_id setado, e o cast `::uuid` de string vazia lançava erro em vez de simplesmente não devolver linha. Corrigido com `nullif(..., '')`.
 2. **Duplicidade de e-mail não virava o erro certo**: `db.transaction` embrulha o erro do driver Postgres num `DrizzleQueryError`, com o `code` de erro (`23505` = unique violation) dentro de `.cause`, não na raiz — a checagem original só olhava a raiz.
+3. **CI falhava num type-check que passava local**: `npx tsc --noEmit` isolado, como primeiro passo do workflow, falhava com "Cannot find name 'LayoutProps'" — esse tipo só existe depois que `next build`/`next dev` geram `.next/types/`. Localmente eu já tinha rodado `npm run build` em cada pasta antes de validar, então nunca vi o problema; um checkout limpo (exatamente o que o CI faz) expõe. Corrigido substituindo o passo isolado pelo `next build` (que já type-checa internamente, na ordem certa).
 
 ## Limitações conhecidas / próximos passos
 
