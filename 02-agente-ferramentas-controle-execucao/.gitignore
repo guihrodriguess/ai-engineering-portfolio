@@ -43,3 +43,6 @@ next-env.d.ts
 
 # dados locais do motor de controle (trace/idempotência) — ver README
 .data/
+
+.vercel
+.env*

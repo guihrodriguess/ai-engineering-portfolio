@@ -11,11 +11,11 @@ Todo domínio e dado é **100% sintético**: nenhum projeto aqui usa dado ou seg
 ### 1 · [RAG com avaliação](./01-rag-com-avaliacao)
 Assistente de perguntas e respostas sobre um contrato de facilities sintético. Retrieval por embedding → rerank com IA → corte por limiar de similaridade → geração com citação obrigatória — com **fallback honesto** quando a base não sustenta a resposta, em vez de alucinar. Duas estratégias de chunking comparadas lado a lado no próprio dashboard de avaliação (recall@k, MRR, taxa de fallback).
 
-### 2 · [Agente com ferramentas e controle de execução](./02-agente-ferramentas-controle-execucao)
+### 2 · [Agente com ferramentas e controle de execução](./02-agente-ferramentas-controle-execucao) — [demo ao vivo ↗](https://ai-agente-controle-execucao.vercel.app)
 Agente de suporte com a camada que separa "tool calling de tutorial" de "ação que pode rodar em produção": retry com backoff exponencial, timeout por tentativa, idempotência (nunca repete um efeito colateral), tracing detalhado e aprovação humana obrigatória (Human-in-the-Loop) pra ações sensíveis — reembolso acima de um teto, cancelamento de pedido.
 
-### 3 · [Pipeline de classificação com IA](./03-pipeline-classificacao)
-Classificador de despesas corporativas: candidatos por similaridade de embedding → reranking com IA sobre o shortlist → regras de negócio determinísticas → veredicto. Dataset de avaliação com casos ambíguos **de propósito** (um dataset onde tudo é óbvio não mede nada) — métricas de top-1/top-k accuracy, falsos positivos e taxa de baixa confiança.
+### 3 · [Pipeline de classificação com IA](./03-pipeline-classificacao) — [demo ao vivo ↗](https://ai-pipeline-classificacao.vercel.app)
+Classificador de despesas corporativas: candidatos por similaridade de embedding → reranking com IA sobre o shortlist → regras de negócio determinísticas → veredicto. Dataset de avaliação com casos ambíguos **de propósito** (um dataset onde tudo é óbvio não mede nada) — métricas de top-1/top-k accuracy, falsos positivos e taxa de baixa confiança. A demo ao vivo já roda em modo simulação por padrão — funciona sem nenhuma chamada de IA real.
 
 ### 4 · [Sistema assíncrono com IA](./04-sistema-assincrono)
 Processamento assíncrono com fila persistida e **worker como processo separado de verdade** (não uma API route fingindo ser assíncrona) — extração e resumo por IA em duas etapas, com retry persistido entre execuções do worker, timeout, dead-letter e reclaim automático de job travado se o worker cair no meio do processamento.
