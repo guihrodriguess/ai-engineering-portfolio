@@ -12,7 +12,7 @@ Cada projeto é uma aplicação standalone (Next.js + Vercel AI SDK + Vercel AI 
 |---|---------|------|--------|
 | 1 | [RAG com avaliação](./01-rag-com-avaliacao) | Chunking, embeddings, reranking, similarity threshold, fallback, evals de qualidade | 🔲 Planejado (baseado em caso real, ver nota abaixo) |
 | 2 | [Agente com ferramentas e controle de execução](./02-agente-ferramentas-controle-execucao) | Tool calling, estado, retry/timeout, idempotência, tracing, Human-in-the-Loop | ✅ v1 funcional |
-| 3 | [Pipeline de classificação com IA](./03-pipeline-classificacao) | Geração de candidatos, reranking, métricas top-1/top-k, falsos positivos, baixa confiança | 🔲 Planejado |
+| 3 | [Pipeline de classificação com IA](./03-pipeline-classificacao) | Geração de candidatos, reranking, métricas top-1/top-k, falsos positivos, baixa confiança | ✅ v1 funcional |
 | 4 | [Sistema assíncrono com IA](./04-sistema-assincrono) | Filas, eventos, workers, observabilidade, tratamento de falhas | 🔲 Planejado |
 | 5 | [Aplicação de IA pronta para produção](./05-app-producao) | API, auth, banco, testes, Docker, deploy, tracing, evals, custo/latência | 🔲 Planejado |
 
