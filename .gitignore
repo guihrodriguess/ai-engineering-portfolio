@@ -1,0 +1,12 @@
+# Claude Code local state
+.claude/
+
+# Node
+node_modules/
+.next/
+.env
+.env.local
+.vercel
+
+# dados locais de demo (trace/idempotência)
+.data/
