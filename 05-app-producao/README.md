@@ -27,8 +27,9 @@ lib/ai/tracing.ts + cota.ts       → log de toda chamada de IA + cota diária p
 app/api/**                        → rotas com validação Zod
 app/**/page.tsx                   → UI (server components lendo direto do banco via RLS)
 tests/                            → integração contra Postgres real, incluindo o teste de isolamento
-.github/workflows/ci.yml          → lint, typecheck, testes (com Postgres de serviço), evals, build
 ```
+
+CI em `.github/workflows/ci-05-app-producao.yml` na raiz do monorepo (não dentro desta pasta — GitHub Actions só reconhece workflows na raiz do repositório): lint, typecheck, testes (com Postgres de serviço), evals, build.
 
 ### Isolamento multi-tenant via Row-Level Security real
 
@@ -86,7 +87,7 @@ Ou a stack inteira em containers (banco + migrations + app), igual produção:
 docker compose up --build
 ```
 
-## CI (`.github/workflows/ci.yml`)
+## CI (`.github/workflows/ci-05-app-producao.yml` na raiz do monorepo)
 
 Lint → type-check → sobe um Postgres de serviço → cria a role `app_user` → aplica migrations → **roda os testes de integração (incluindo RLS) contra esse Postgres** → roda os evals do classificador (gate de qualidade mínima, sem custo de IA — usa o fallback heurístico) → build de produção. Falha em qualquer etapa bloqueia o merge.
 

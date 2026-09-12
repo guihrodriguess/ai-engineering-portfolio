@@ -1,10 +1,22 @@
-name: CI
+name: CI (05-app-producao)
+
+# Workflows do GitHub Actions só são reconhecidos em .github/workflows/ na
+# RAIZ do repositório — não dentro da pasta de cada projeto (é por isso que
+# este arquivo não vive em 05-app-producao/.github/, onde estava antes).
+# O filtro de `paths` abaixo garante que só roda quando esse projeto muda,
+# já que o repositório é um monorepo com os 5 projetos do portfólio.
 
 on:
   push:
     branches: [main]
+    paths: ['05-app-producao/**', '.github/workflows/ci-05-app-producao.yml']
   pull_request:
     branches: [main]
+    paths: ['05-app-producao/**', '.github/workflows/ci-05-app-producao.yml']
+
+defaults:
+  run:
+    working-directory: 05-app-producao
 
 jobs:
   ci:
@@ -39,6 +51,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
+          cache-dependency-path: 05-app-producao/package-lock.json
 
       - run: npm ci
 
