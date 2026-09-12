@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app_producao
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Cria a role app_user (sem BYPASSRLS) na primeira subida do container —
+      # ver db/sql/01-role-app-user.sql pro porquê.
+      - ./db/sql/01-role-app-user.sql:/docker-entrypoint-initdb.d/01-role-app-user.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Roda uma vez, aplica migrations + funções de auth, e sai. `app` só sobe
+  # depois dele terminar com sucesso — não faz sentido a aplicação subir
+  # contra um schema que ainda não existe.
+  migrator:
+    build:
+      context: .
+      target: build
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL_ADMIN: postgres://postgres:postgres@db:5432/app_producao
+    command: npm run db:migrate
+
+  app:
+    build:
+      context: .
+      target: runtime
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    ports:
+      - '3000:3000'
+    environment:
+      # app_user, não postgres — é essa role, sem BYPASSRLS, que faz a RLS valer.
+      DATABASE_URL: postgres://app_user:app_user_dev_only@db:5432/app_producao
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
+      CLASSIFICACAO_MODEL: ${CLASSIFICACAO_MODEL:-anthropic/claude-haiku-4-5}
+
+volumes:
+  pgdata:

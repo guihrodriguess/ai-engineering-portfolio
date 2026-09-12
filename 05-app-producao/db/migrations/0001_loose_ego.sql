@@ -1,0 +1,4 @@
+ALTER POLICY "usuarios_isolamento_por_organizacao" ON "usuarios" TO app_user USING ("usuarios"."organizacao_id" = nullif(current_setting('app.org_id', true), '')::uuid);--> statement-breakpoint
+ALTER POLICY "sessoes_isolamento_por_organizacao" ON "sessoes" TO app_user USING ("sessoes"."organizacao_id" = nullif(current_setting('app.org_id', true), '')::uuid);--> statement-breakpoint
+ALTER POLICY "feedbacks_isolamento_por_organizacao" ON "feedbacks" TO app_user USING ("feedbacks"."organizacao_id" = nullif(current_setting('app.org_id', true), '')::uuid);--> statement-breakpoint
+ALTER POLICY "chamadas_ia_isolamento_por_organizacao" ON "chamadas_ia" TO app_user USING ("chamadas_ia"."organizacao_id" = nullif(current_setting('app.org_id', true), '')::uuid);

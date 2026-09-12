@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: app_producao
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL_ADMIN: postgres://postgres:postgres@localhost:5432/app_producao
+      # RLS exige app_user; a migração e as funções de auth (etapa seguinte)
+      # precisam existir antes desta variável fazer sentido, mas ela já
+      # aponta pra role correta desde já.
+      DATABASE_URL: postgres://app_user:app_user_dev_only@localhost:5432/app_producao
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Cria a role app_user (services do GitHub Actions não suportam volume de init SQL)
+        run: psql "$DATABASE_URL_ADMIN" -f db/sql/01-role-app-user.sql
+
+      - name: Aplica migrations + funções de auth
+        run: npm run db:migrate
+
+      - name: Testes (integração real contra Postgres, incluindo isolamento por RLS)
+        run: npm test
+
+      - name: Evals do classificador (gate de qualidade mínima antes do deploy)
+        run: npm run evals
+
+      - name: Build de produção
+        run: npm run build
