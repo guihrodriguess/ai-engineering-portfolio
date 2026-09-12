@@ -45,9 +45,9 @@ jobs:
       DATABASE_URL: postgres://app_user:app_user_dev_only@localhost:5432/app_producao
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
